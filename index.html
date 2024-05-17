@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador de Visitas</title>
+</head>
+<body>
+    <h1>Contador de Visitas</h1>
+    <p id="visitas"></p>
+
+    <script>
+        // Función para obtener el puerto
+        function getPort() {
+            return window.location.port || 'default';
+        }
+
+        // Función para incrementar el contador
+        function incrementarContador() {
+            var puerto = getPort();
+            var visitasAnteriores = localStorage.getItem(puerto);
+
+            if (!visitasAnteriores) {
+                visitasAnteriores = 0;
+            } else {
+                visitasAnteriores = parseInt(visitasAnteriores);
+            }
+
+            var nuevasVisitas = visitasAnteriores + 1;
+            localStorage.setItem(puerto, nuevasVisitas);
+            document.getElementById('visitas').innerText = 'Número de visitas desde el mismo puerto: ' + nuevasVisitas;
+        }
+
+        // Llama a la función para incrementar el contador al cargar la página
+        incrementarContador();
+    </script>
+</body>
+</html>
+
