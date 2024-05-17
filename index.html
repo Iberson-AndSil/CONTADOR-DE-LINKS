@@ -1,39 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contador de Visitas</title>
-</head>
-<body>
-    <h1>Contador de Visitas</h1>
-    <p id="visitas"></p>
+    <title>Contador de Visitas con Firebase</title>
+    <!-- Import Firebase libraries -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+        import { getDatabase, ref, runTransaction } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
-    <script>
-        // Función para obtener el puerto
-        function getPort() {
-            return window.location.port || 'default';
-        }
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAc3_1FO7ZqvB9-1Xun_E9XUJy-eeGpwhw",
+            authDomain: "counter-8121d.firebaseapp.com",
+            projectId: "counter-8121d",
+            storageBucket: "counter-8121d.appspot.com",
+            messagingSenderId: "68590006844",
+            appId: "1:68590006844:web:2d34f08ab6768f6b5c8939",
+            measurementId: "G-F0S2SCRQ55"
+        };
 
-        // Función para incrementar el contador
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const database = getDatabase(app);
+
+        // Función para incrementar el contador de visitas
         function incrementarContador() {
-            var puerto = getPort();
-            var visitasAnteriores = localStorage.getItem(puerto);
-
-            if (!visitasAnteriores) {
-                visitasAnteriores = 0;
-            } else {
-                visitasAnteriores = parseInt(visitasAnteriores);
-            }
-
-            var nuevasVisitas = visitasAnteriores + 1;
-            localStorage.setItem(puerto, nuevasVisitas);
-            document.getElementById('visitas').innerText = 'Número de visitas desde el mismo puerto: ' + nuevasVisitas;
+            const dbRef = ref(database, 'visitas');
+            runTransaction(dbRef, (currentCount) => {
+                if (currentCount === null) {
+                    return 1;
+                } else {
+                    return currentCount + 1;
+                }
+            }).then((result) => {
+                if (result.committed) {
+                    document.getElementById('visitas').innerText = 'Número de visitas: ' + result.snapshot.val();
+                }
+            }).catch((error) => {
+                console.error("Transaction failed: ", error);
+            });
         }
 
         // Llama a la función para incrementar el contador al cargar la página
-        incrementarContador();
+        window.onload = function() {
+            incrementarContador();
+        };
     </script>
+</head>
+<body>
+    <h1>Contador de Visitas con Firebase</h1>
+    <p id="visitas">Número de visitas: 0</p>
 </body>
 </html>
-
